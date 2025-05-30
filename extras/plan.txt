@@ -1,0 +1,226 @@
+Here’s a detailed, step-by-step **project plan** to build **MetricPulse**, a real-time analytics backend system using NestJS, PostgreSQL, Prisma, Redis, and WebSockets. Follow this plan like a checklist to structure your work.
+
+---
+
+# ✅ **MetricPulse – Backend Plan**
+
+## 🔧 Phase 0: Project Setup
+
+### 0.1. Create Project Boilerplate
+
+* [ ] Initialize a NestJS project:
+  `nest new metricpulse-backend`
+* [ ] Install required packages:
+
+  ```bash
+  npm install @nestjs/jwt @nestjs/passport passport passport-jwt bcrypt class-validator class-transformer
+  npm install @nestjs/config
+  npm install @nestjs/websockets @nestjs/platform-socket.io
+  npm install @nestjs/schedule
+  npm install prisma --save-dev
+  npm install @prisma/client
+  npm install ioredis
+  ```
+
+### 0.2. Setup Prisma and PostgreSQL
+
+* [ ] Create PostgreSQL DB (locally or on Supabase/Railway)
+* [ ] Run:
+
+  ```bash
+  npx prisma init
+  ```
+* [ ] Update `DATABASE_URL` in `.env`
+* [ ] Create `user` model in `schema.prisma` and migrate:
+
+  ```bash
+  npx prisma migrate dev --name init
+  ```
+
+---
+
+## 🔐 Phase 1: Authentication
+
+### 1.1. User Module
+
+* [ ] Signup: hash password using bcrypt, store in DB
+* [ ] Login: validate password and issue JWT
+* [ ] Use `PassportStrategy` with JWT
+* [ ] Setup `@UseGuards(JwtAuthGuard)` for protected routes
+
+---
+
+## 🌐 Phase 2: Website + Event Tracking
+
+### 2.1. Website Module
+
+* [ ] Model:
+
+  * `id`, `userId`, `name`, `domain`, `createdAt`
+* [ ] Endpoints:
+
+  * `POST /websites` → create
+  * `GET /websites` → list user’s sites
+  * `DELETE /websites/:id`
+
+### 2.2. Event Module
+
+* [ ] Model:
+
+  * `id`, `websiteId`, `eventType`, `url`, `referrer`, `timestamp`, `sessionId`, `userAgent`, `ip`
+* [ ] Endpoint:
+
+  * `POST /track`
+* [ ] Middleware:
+
+  * Extract user from JWT
+  * Validate domain against registered websites
+  * Save event in DB
+* [ ] Optional:
+
+  * Enrich event with geoIP or device info
+
+---
+
+## 💾 Phase 3: Data Modeling (Prisma)
+
+### 3.1. Update `schema.prisma`
+
+* [ ] Models:
+
+  ```prisma
+  model User { id, email, password, websites Website[] }
+  model Website { id, userId, domain, events Event[] }
+  model Event { id, websiteId, eventType, timestamp, sessionId, url, referrer }
+  model EventSummary { id, websiteId, date, pageViews, uniqueSessions }
+  ```
+
+### 3.2. Run migration
+
+```bash
+npx prisma migrate dev --name events-model
+```
+
+---
+
+## 📊 Phase 4: Aggregation Jobs
+
+### 4.1. Use `@nestjs/schedule`
+
+* [ ] Install & import `ScheduleModule.forRoot()`
+* [ ] Create `AggregationService` with a `@Cron()` every hour
+* [ ] Logic:
+
+  * Group events by day, sessionId, and website
+  * Insert into `EventSummary`
+
+### 4.2. Schedule Daily Aggregation
+
+* [ ] Store:
+
+  * `pageViews = count(*)`
+  * `uniqueSessions = count(distinct sessionId)`
+
+---
+
+## 🚀 Phase 5: WebSocket Gateway (Live Dashboard)
+
+### 5.1. Setup WebSocket Gateway
+
+* [ ] Use `@WebSocketGateway()` with socket.io adapter
+* [ ] Authenticate user on connect
+* [ ] Join room per websiteId
+
+### 5.2. Connect Events to WebSocket
+
+* [ ] When `POST /track` is hit:
+
+  * Also `publish` event to Redis channel `events:{websiteId}`
+* [ ] WebSocket listens for that Redis message and emits to clients
+
+---
+
+## ⚡ Phase 6: Redis Integration
+
+### 6.1. Use `ioredis`
+
+* [ ] Setup Redis client globally
+* [ ] Use for:
+
+  * WebSocket pub/sub
+  * Caching common queries
+  * Rate limiting (optional)
+
+---
+
+## 📈 Phase 7: Analytics API
+
+### 7.1. Create Endpoints
+
+* [ ] `GET /stats/:websiteId/overview`
+
+  * Total views, unique visitors, today, last 7 days
+* [ ] `GET /stats/:websiteId/top-pages`
+
+  * Aggregate by URL
+* [ ] `GET /stats/:websiteId/realtime`
+
+  * Current active sessions (via Redis or recent events)
+
+### 7.2. Use Redis Cache
+
+* [ ] Cache results for 30–60 seconds to reduce DB load
+
+---
+
+## 📤 Phase 8: Email Notifications (Optional)
+
+* [ ] Send daily/weekly summary to users via Resend/SendGrid
+
+---
+
+## 🔧 Phase 9: DevOps / Production (Optional)
+
+* [ ] Dockerize the app
+* [ ] Use Docker Compose for PostgreSQL + Redis
+* [ ] Host on Render, Railway, or Fly.io
+
+---
+
+## 🧪 Phase 10: Testing & Documentation
+
+### 10.1. Swagger
+
+* [ ] Setup Swagger with `@nestjs/swagger`
+* [ ] Document all endpoints
+
+### 10.2. Unit Testing
+
+* [ ] Add at least 1 test for each module
+* [ ] Use `@nestjs/testing`
+
+---
+
+## 🧾 Final Touches
+
+* [ ] Add a professional `README.md` (I can help write it)
+* [ ] Include diagrams (use [draw.io](https://draw.io) or Excalidraw)
+* [ ] Push clean commits to GitHub
+
+---
+
+## 🧠 Summary
+
+| Area           | What You’ll Learn            |
+| -------------- | ---------------------------- |
+| Auth           | JWT, password hashing        |
+| DB             | Prisma + PostgreSQL modeling |
+| Real-Time      | WebSockets with Redis        |
+| Data Pipelines | Aggregation via cron         |
+| API Design     | Analytics endpoints          |
+| Infra          | Redis pub/sub, caching       |
+| Clean Code     | Modular NestJS structure     |
+
+---
+
+Let me know when you're ready to start a specific phase — I can give you exact code structure, Prisma models, or help you implement each part as you go.

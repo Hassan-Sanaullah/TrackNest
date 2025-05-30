@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  tracknest-db:
+    image: postgres:15
+    container_name: tracknest_postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tracknest
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

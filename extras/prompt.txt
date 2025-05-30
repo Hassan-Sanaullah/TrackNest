@@ -1,0 +1,19 @@
+I'm building a backend-only real-time analytics platform called MetricPulse using NestJS, PostgreSQL, Prisma, Redis, and WebSockets. The goal is to let users track website traffic (page views, clicks, etc.) in real time and view historical summaries.
+
+Features include:
+
+    JWT-based authentication for users
+
+    An event ingestion API (/track) that stores raw event data
+
+    PostgreSQL for event, website, user, and summary storage
+
+    CRON jobs to aggregate event data into hourly/daily summaries
+
+    WebSocket gateway to push real-time analytics to connected dashboards
+
+    Redis for caching, pub/sub for real-time, and optional rate-limiting
+
+The architecture is modular and scalable, with proper separation of concerns (auth, events, websites, stats, etc.).
+
+When I ask questions using this prompt, assume I'm referring to this MetricPulse backend project unless I say otherwise.
