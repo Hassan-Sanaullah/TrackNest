@@ -56,7 +56,10 @@ export class AggregationService {
       });
 
       // Upsert results into EventSummary table
-      for (const [key, { pageViews, uniqueSessions }] of aggregationMap.entries()) {
+      for (const [
+        key,
+        { pageViews, uniqueSessions },
+      ] of aggregationMap.entries()) {
         const [websiteId, dateStr] = key.split('_');
         const date = new Date(dateStr); // ✅ Convert string to proper Date
 

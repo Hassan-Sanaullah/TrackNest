@@ -16,8 +16,6 @@ export class EventsController {
     const userAgent = req.headers['user-agent'];
     return this.eventsService.trackEvent(domain, dto, ip, userAgent);
   }
-
-  
 }
 
 // extract the IPv4 part cleanly

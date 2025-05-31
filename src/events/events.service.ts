@@ -1,10 +1,18 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateEventDto } from './dto';
+import Redis from 'ioredis';
 
 @Injectable()
 export class EventsService {
-  constructor(private prisma: PrismaService) {}
+  private redisPublisher: Redis;
+
+  constructor(
+    private prisma: PrismaService,
+    @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
+  ) {
+    // this.redisPublisher = new Redis();
+  }
 
   async trackEvent(
     domain: string,
@@ -51,6 +59,11 @@ export class EventsService {
         websiteId: website.id,
       },
     });
+
+    await this.redisClient.publish(
+      `events:${eventCreate.websiteId}`,
+      JSON.stringify(eventCreate),
+    );
 
     return eventCreate;
   }
