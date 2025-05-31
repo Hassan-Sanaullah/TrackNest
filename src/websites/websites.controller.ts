@@ -7,15 +7,15 @@ import { GetUser } from 'src/auth/decorator';
 @UseGuards(JwtGuard)
 @Controller('websites')
 export class WebsitesController {
-    constructor(private websitesService: WebsitesService) { }
+  constructor(private websitesService: WebsitesService) {}
 
-    @Post('create')
-    createWebsite(@Body() dto: CreateWebsiteDto, @GetUser('id') userId: string) {
-        return this.websitesService.createWebsite(dto, userId);
-    }
+  @Post('create')
+  createWebsite(@Body() dto: CreateWebsiteDto, @GetUser('id') userId: string) {
+    return this.websitesService.createWebsite(dto, userId);
+  }
 
-    @Get()
-    getWebsite(@GetUser('id') userId: string) {
-        return this.websitesService.getWebsite(userId);
-    }
+  @Get()
+  getWebsite(@GetUser('id') userId: string) {
+    return this.websitesService.getWebsite(userId);
+  }
 }
