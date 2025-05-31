@@ -20,6 +20,26 @@ export class EventsService {
       throw new ForbiddenException('Unregistered domain');
     }
 
+    let session = await this.prisma.session.findUnique({
+      where: {
+        sessionId_websiteId: {
+          sessionId: dto.sessionId,
+          websiteId: website.id,
+        },
+      },
+    });
+
+    if (!session) {
+      session = await this.prisma.session.create({
+        data: {
+          sessionId: dto.sessionId,
+          ip: ip,
+          userAgent: userAgent,
+          websiteId: website.id,
+        },
+      });
+    }
+
     const eventCreate = await this.prisma.event.create({
       data: {
         eventType: dto.eventType,

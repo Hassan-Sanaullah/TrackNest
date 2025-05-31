@@ -7,17 +7,20 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { WebsitesModule } from './websites/websites.module';
 import { EventsModule } from './events/events.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AggregationService } from './aggregation/aggregation.service';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     PrismaModule,
-    ConfigModule.forRoot({ isGlobal: true }),
     WebsitesModule,
     EventsModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AggregationService],
 })
 export class AppModule {}

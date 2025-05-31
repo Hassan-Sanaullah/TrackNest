@@ -60,6 +60,8 @@ model Session {
 
   website    Website   @relation(fields: [websiteId], references: [id])
   websiteId  String
+
+  @@unique([sessionId, websiteId])
 }
 
 model EventSummary {
@@ -70,4 +72,7 @@ model EventSummary {
 
   website         Website  @relation(fields: [websiteId], references: [id])
   websiteId       String
+
+
+  @@unique([websiteId, date], name: "websiteId_date")
 }
