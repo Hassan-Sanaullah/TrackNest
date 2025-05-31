@@ -1,21 +1,27 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
+import { UpdatePasswordDto } from './dto';
+import { GetUser } from 'src/auth/decorator';
 
+@UseGuards(JwtGuard)
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @UseGuards(JwtGuard)
   @Get()
-  userInfo(@Req() request: Request) {
-    const authHeader = request.headers['authorization'];
-    const token = authHeader?.split(' ')[1]; // Bearer <token>
-
-    if (!token) {
-      throw new Error('No JWT token provided');
+  userInfo(@GetUser('id') userId: string) {
+    if (!userId) {
+      throw new Error('User ID not found in request');
     }
+    return this.userService.userInfo(userId);
+  }
 
-    return this.userService.userInfo(token);
+  @Patch('update-password')
+  async updatePassword(
+    @Body() dto: UpdatePasswordDto,
+    @GetUser('id') userId: string,
+  ) {
+    return this.userService.updatePassword(dto, userId);
   }
 }
