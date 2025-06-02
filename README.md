@@ -168,14 +168,22 @@ socket.on('new_event', (data) => {
 
 ```
 src/
-├── auth/              # JWT auth logic
-├── events/            # Event tracking endpoints
-├── scripts/           # Public tracking script
-├── socket/            # WebSocket gateway
-├── prisma/            # Prisma schema and migrations
-├── main.ts            # Entry point
-└── app.module.ts      # Root module
+├── aggregation/
+├── auth/
+├── events/
+├── middleware/
+├── prisma/
+├── redis/
+├── stats/
+├── user/
+├── websites/
+├── app.controller.spec.ts
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+└── main.ts
 ```
+
 
 <!-- ---
 
