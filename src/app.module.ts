@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -10,6 +10,8 @@ import { EventsModule } from './events/events.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AggregationService } from './aggregation/aggregation.service';
 import { RedisModule } from './redis/redis.module';
+import { StatsModule } from './stats/stats.module';
+import { RateLimitMiddleware } from './middleware/rate-limit.middleware';
 
 @Module({
   imports: [
@@ -21,8 +23,15 @@ import { RedisModule } from './redis/redis.module';
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     RedisModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AggregationService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RateLimitMiddleware)
+      .forRoutes('events'); // Apply to route(s) as needed
+  }
+}

@@ -17,51 +17,61 @@ export class AggregationService {
     startDate.setHours(endDate.getHours() - 1);
 
     try {
-      // Group events by websiteId, sessionId, and eventType
-      const rawEvents = await this.prisma.event.groupBy({
-        by: ['websiteId', 'sessionId', 'eventType'],
+      const events = await this.prisma.event.findMany({
         where: {
           timestamp: {
             gte: startDate,
             lt: endDate,
           },
         },
-        _count: true,
       });
 
-      // Prepare aggregation map
-      const aggregationMap = new Map<
+      const map = new Map<
         string,
-        { pageViews: number; uniqueSessions: Set<string> }
+        {
+          eventTypeCounts: Record<string, number>;
+          sessions: Set<string>;
+          topPages: Record<string, number>;
+          referrers: Record<string, number>;
+        }
       >();
 
-      rawEvents.forEach((event) => {
-        const day = startDate.toISOString().slice(0, 10); // YYYY-MM-DD
-        const key = `${event.websiteId}_${day}`;
+      for (const event of events) {
+        const hourStart = new Date(event.timestamp);
+        hourStart.setMinutes(0, 0, 0);
+        const key = `${event.websiteId}_${hourStart.toISOString()}`;
 
-        if (!aggregationMap.has(key)) {
-          aggregationMap.set(key, {
-            pageViews: 0,
-            uniqueSessions: new Set(),
+        if (!map.has(key)) {
+          map.set(key, {
+            eventTypeCounts: {},
+            sessions: new Set(),
+            topPages: {},
+            referrers: {},
           });
         }
 
-        const agg = aggregationMap.get(key)!;
+        const agg = map.get(key)!;
 
+        // Increment event type count
+        agg.eventTypeCounts[event.eventType] =
+          (agg.eventTypeCounts[event.eventType] || 0) + 1;
+
+        // Only add to topPages if it's a page_view
         if (event.eventType === 'page_view') {
-          agg.pageViews += event._count;
+          agg.topPages[event.url] = (agg.topPages[event.url] || 0) + 1;
         }
 
-        agg.uniqueSessions.add(event.sessionId);
-      });
+        // Track unique session
+        agg.sessions.add(event.sessionId);
 
-      // Upsert results into EventSummary table
-      for (const [
-        key,
-        { pageViews, uniqueSessions },
-      ] of aggregationMap.entries()) {
+        // Aggregate referrer
+        const ref = event.referrer || 'direct';
+        agg.referrers[ref] = (agg.referrers[ref] || 0) + 1;
+      }
+
+      for (const [key, data] of map.entries()) {
         const [websiteId, dateStr] = key.split('_');
-        const date = new Date(dateStr); // ✅ Convert string to proper Date
+        const date = new Date(dateStr);
 
         await this.prisma.eventSummary.upsert({
           where: {
@@ -71,14 +81,18 @@ export class AggregationService {
             },
           },
           update: {
-            pageViews: { increment: pageViews },
-            uniqueSessions: { increment: uniqueSessions.size },
+            eventTypeCounts: data.eventTypeCounts,
+            sessions: data.sessions.size,
+            topPages: data.topPages,
+            referrers: data.referrers,
           },
           create: {
             websiteId,
             date,
-            pageViews,
-            uniqueSessions: uniqueSessions.size,
+            eventTypeCounts: data.eventTypeCounts,
+            sessions: data.sessions.size,
+            topPages: data.topPages,
+            referrers: data.referrers,
           },
         });
       }

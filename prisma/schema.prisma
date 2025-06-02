@@ -65,14 +65,21 @@ model Session {
 }
 
 model EventSummary {
-  id              String   @id @default(uuid())
-  date            DateTime
-  pageViews       Int
-  uniqueSessions  Int
+  id               String   @id @default(cuid())
+  websiteId        String
+  date             DateTime
+  sessions         Int      @default(0)
 
-  website         Website  @relation(fields: [websiteId], references: [id])
-  websiteId       String
+  
+  eventTypeCounts  Json     // e.g., { "page_view": 123, "click": 45, "signup": 7 }
+  topPages         Json     // e.g., { "/home": 100, "/about": 30 }
+  referrers        Json     // e.g., { "google.com": 80, "twitter.com": 10 }
 
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  Website          Website  @relation(fields: [websiteId], references: [id])
 
   @@unique([websiteId, date], name: "websiteId_date")
 }
+

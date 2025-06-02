@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
 @Global()
@@ -6,11 +7,12 @@ import Redis from 'ioredis';
   providers: [
     {
       provide: 'REDIS_CLIENT',
-      useFactory: () => {
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
         return new Redis({
-          host: process.env.REDIS_HOST || '127.0.0.1',
-          port: Number(process.env.REDIS_PORT) || 6379,
-          password: process.env.REDIS_PASSWORD || undefined,
+          host: config.get<string>('REDIS_HOST') ?? '127.0.0.1',
+          port: parseInt(config.get<string>('REDIS_PORT') ?? '6379', 10),
+          password: config.get<string>('REDIS_PASSWORD') || undefined,
         });
       },
     },
