@@ -8,8 +8,7 @@ export class RateLimitMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    console.log('Client IP:', ip);
-
+console.log(`Incoming request: ${req.method} ${req.url}`);
     if (!ip) return next();
 
     const key = `ratelimit:${ip}`;

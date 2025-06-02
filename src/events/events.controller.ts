@@ -1,6 +1,8 @@
-import { Body, Controller, Headers, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Post, Req } from '@nestjs/common';
 import { CreateEventDto } from './dto';
 import { EventsService } from './events.service';
+import { join } from 'path';
+import { readFileSync } from 'fs';
 
 @Controller('events')
 export class EventsController {
@@ -12,9 +14,18 @@ export class EventsController {
     @Body() dto: CreateEventDto,
     @Req() req,
   ) {
+    console.log('track')
     const ip = normalizeIp(req.ip);
     const userAgent = req.headers['user-agent'];
     return this.eventsService.trackEvent(domain, dto, ip, userAgent);
+  }
+
+  @Get('tracknest.js')
+  @Header('Content-Type', 'application/javascript')
+  getScript() {
+    const filePath = join(__dirname, '..', '..', 'public', 'tracknest.js');
+    const script = readFileSync(filePath, 'utf8');
+    return script;
   }
 }
 

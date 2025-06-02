@@ -11,7 +11,6 @@ export class EventsService {
     private prisma: PrismaService,
     @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
   ) {
-    // this.redisPublisher = new Redis();
   }
 
   async trackEvent(
@@ -20,12 +19,13 @@ export class EventsService {
     ip: string,
     userAgent: string,
   ) {
-    const website = await this.prisma.website.findFirst({
-      where: { domain: domain },
+    console.log(dto)
+    const website = await this.prisma.website.findUnique({
+      where: { id: dto.websiteId },
     });
 
     if (!website) {
-      throw new ForbiddenException('Unregistered domain');
+      throw new ForbiddenException('Unregistered website');
     }
 
     let session = await this.prisma.session.findUnique({

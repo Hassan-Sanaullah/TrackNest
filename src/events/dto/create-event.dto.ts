@@ -3,6 +3,9 @@ import { IsString, IsOptional } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
+  websiteId: string;
+
+  @IsString()
   eventType: string;
 
   @IsString()

@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { AggregationService } from './aggregation/aggregation.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,6 +9,13 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+
+  app.enableCors({
+    origin: true, // or specify the allowed domain(s)
+    credentials: true,
+  });
+
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
