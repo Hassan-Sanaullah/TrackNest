@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head><title>Socket.IO Test</title></head>
+  <body>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script>
+      const socket = io('http://localhost:3000', {
+        query: {
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYzFlZTM2ZS01ZmRhLTQ0OWItODVlNS01MjcyNzlhZTMzYWIiLCJlbWFpbCI6ImFAYS5jb20iLCJpYXQiOjE3NDg3MTk2MzMsImV4cCI6MTc0ODcyMzIzM30.eKjznIBgtc8itndfWq4BxslAqLdPfyeEAbgbsqTF0TQ',
+          websiteId: '6bfb8bcc-344e-46fb-a840-60ec547ee4d8'
+        }
+      });
+
+      socket.on('connect', () => {
+        console.log('✅ Connected!', socket.id);
+      });
+
+      socket.on('connect_error', (err) => {
+        console.error('❌ Connection error:', err.message);
+      });
+
+      socket.on('new_event', (data) => {
+        console.log('📥 Received event:', data);
+      });
+    </script>
+  </body>
+</html>
