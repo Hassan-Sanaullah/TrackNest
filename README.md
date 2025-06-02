@@ -10,11 +10,12 @@
 - Custom event tracking (e.g. button clicks)
 - Unique session identification
 - Referrer tracking
-- Real-time ingestion via WebSockets (`new_event` channel)
+- Real-time ingestion via WebSockets
 - JWT-based authentication
 - Server-side aggregation via CRON jobs
 - Redis caching and pub/sub
 - Modular architecture for easy extensibility
+- Redis-based rate limiting for event tracking to prevent abuse
 
 ---
 
