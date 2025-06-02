@@ -1,98 +1,217 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# TrackNest
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+**TrackNest** is a lightweight, backend-driven real-time website analytics solution. It allows you to track page views, button clicks, and other custom events with a privacy-friendly, script-based tracking mechanism. Built using **NestJS**, **PostgreSQL**, **Prisma**, and **Redis**, TrackNest is designed to scale, while remaining minimal and easy to deploy.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🌐 Live Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Page view tracking
+- Custom event tracking (e.g. button clicks)
+- Unique session identification
+- Referrer tracking
+- Real-time ingestion via WebSockets (`new_event` channel)
+- JWT-based authentication
+- Server-side aggregation via CRON jobs
+- Redis caching and pub/sub
+- Modular architecture for easy extensibility
 
-## Project setup
+---
 
-```bash
-$ npm install
+## 🧠 How It Works
+
+1. **Client embeds the tracking script**:
+
+```html
+<script src="http://<your-api-domain>/events/tracknest.js"></script>
+<script>TrackNest('init', '<websiteId>');</script>
 ```
 
-## Compile and run the project
+2. **Server-side responsibilities**:
+   - Validates and stores event data in PostgreSQL.
+   - Aggregates daily analytics using a scheduled CRON job.
+   - Emits real-time updates to connected WebSocket clients.
+   - Uses Redis for caching and pub/sub messaging.
 
-```bash
-# development
-$ npm run start
+3. **Real-time tracking (via WebSockets)**:
 
-# watch mode
-$ npm run start:dev
+To receive real-time events in a dashboard:
 
-# production mode
-$ npm run start:prod
+```js
+const socket = io('http://localhost:3000', {
+  query: {
+    token: '<jwt_token>',
+    websiteId: '<your_website_id>'
+  }
+});
+
+socket.on('new_event', (data) => {
+  console.log('Real-time event:', data);
+});
 ```
 
-## Run tests
+---
+
+## 📦 Technologies Used
+
+| Component       | Tech Stack                         |
+|----------------|------------------------------------|
+| Backend         | [NestJS](https://nestjs.com/)      |
+| Database        | [PostgreSQL](https://postgresql.org) |
+| ORM             | [Prisma](https://www.prisma.io/)   |
+| Caching / PubSub| [Redis](https://redis.io/)         |
+| Auth            | [JWT (via Passport)](https://docs.nestjs.com/security/authentication)               |
+| WebSockets      | [Socket.IO](https://socket.io/)    |
+| Frontend Script | Vanilla JS                         |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js v18+
+- Docker + Docker Compose
+- Optional: PostgreSQL and Redis (if not using Docker)
+
+---
+
+### 📦 Installation
+
+1. **Clone the repo**:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/hassan-sanaullah/tracknest.git
+cd tracknest
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+2. **Install dependencies**:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+3. **Copy and configure your environment variables**:
 
-## Resources
+```bash
+cp .env.example .env
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Then fill in your `.env` file with your actual values:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```env
+JWT_SECRET=your_jwt_secret
 
-## Support
+REDIS_HOST=localhost
+REDIS_PORT=6379
+PORT=3000
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/tracknest
 
-## Stay in touch
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=tracknest
+POSTGRES_PORT=5432
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+4. **Start PostgreSQL and Redis using Docker Compose**:
 
-## License
+```bash
+npm run docker:up
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This will start the services defined in your `docker-compose.postgres.yml` and `docker-compose.redis.yml` for PostgreSQL and Redis.
+
+5. **Generate the Prisma client**:
+
+```bash
+npx prisma generate
+```
+
+6. **Apply database schema** (if not already applied):
+
+```bash
+npx prisma migrate dev --name init
+```
+
+7. **Run the server**:
+
+```bash
+npm run start:dev
+```
+
+---
+
+## 🔌 WebSocket Usage
+
+TrackNest supports real-time analytics using WebSockets (via `Socket.IO`). Connect to the server and subscribe to the `new_event` channel:
+
+```js
+const socket = io('http://localhost:3000', {
+  query: {
+    token: 'your_jwt_token',
+    websiteId: 'your_website_id'
+  }
+});
+
+socket.on('new_event', (data) => {
+  console.log('New event received:', data);
+});
+```
+
+> **Note**: The `token` must be a valid JWT issued by the TrackNest API.
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── auth/              # JWT auth logic
+├── events/            # Event tracking endpoints
+├── scripts/           # Public tracking script
+├── socket/            # WebSocket gateway
+├── prisma/            # Prisma schema and migrations
+├── main.ts            # Entry point
+└── app.module.ts      # Root module
+```
+
+<!-- ---
+
+## 🛠 Features to Add
+
+- Analytics dashboard (React/Vite frontend)
+- GDPR consent and cookie modes
+- Bot filtering / spam protection
+- Public vs Private project modes
+- Event batching for performance
+- Real-time charts and admin panel
+
+---
+
+## 🧑‍💻 Contributing
+
+Pull requests and issues are welcome! Please open an issue first to discuss what you’d like to work on. -->
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+---
+
+## 📞 Contact
+
+Made with ❤️ by Hassan Sanaullah.
+
+- Email: hassansanaullah10@gmail.com
+- GitHub: [github.com/hassan-sanaullah](https://github.com/hassan-sanaullah)
+
+---
+
+## 🧷 Notes for Production
+
+- Consider using a process manager like `pm2` or Docker for deployment.
+- Use HTTPS in production to secure WebSocket and script traffic.
+- Limit JWT token lifetimes and rotate secrets frequently.
