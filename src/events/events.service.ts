@@ -65,6 +65,8 @@ export class EventsService {
       JSON.stringify(eventCreate),
     );
 
+    await this.redisClient.del(`overview:${eventCreate.websiteId}`);
+
     return eventCreate;
   }
 }
