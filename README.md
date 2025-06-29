@@ -164,6 +164,126 @@ socket.on('new_event', (data) => {
 
 ---
 
+## 🚀 API Endpoints
+
+### 📍 Base URL
+
+```
+http://localhost:3000
+```
+
+---
+
+## 📦 Authentication
+
+### 🔐 Sign Up
+
+**Endpoint:** `POST /auth/signup`
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "Password_123"
+}
+```
+
+---
+
+### 🔑 Sign In
+
+**Endpoint:** `POST /auth/signin`
+
+**Request Body:**
+```json
+{
+   "email": "user@example.com",
+  "password": "Password_123"
+}
+```
+
+---
+
+### 🔄 Update Password
+
+**Endpoint:** `PATCH /user/update-password`  
+**Auth:** Bearer Token (JWT)
+
+**Request Body:**
+```json
+{
+  "currentPassword": "Password_123",
+  "newPassword": "NewPassword_123"
+}
+```
+
+---
+
+## 🌐 Website Management
+
+### ➕ Create Website
+
+**Endpoint:** `POST /websites/create`  
+**Auth:** Bearer Token (JWT)
+
+**Request Body:**
+```json
+{
+  "name": "test website",
+  "domain": "www.example.com"
+}
+```
+
+---
+
+### 📄 Get Websites
+
+**Endpoint:** `GET /websites`  
+**Auth:** Bearer Token (JWT)
+
+---
+
+## 📊 Event Tracking
+
+### 📌 Track Events
+
+**Endpoint:** `POST /events/track`
+
+**Headers:**
+```
+Content-Type: application/json  
+x-domain: www.example.com
+```
+
+**Request Body:**
+```json
+{
+  "websiteId": "8bd29934-3807-41a6-9bdc-0b26964c347c",
+  "eventType": "page_view",
+  "url": "/blog/how-to-code",
+  "referrer": "https://example.com",
+  "sessionId": "4e8a122f-5af0-49df-b9cb-5fc1a80e7331"
+}
+```
+
+---
+
+## 📈 Analytics
+
+### 📊 Get Overview Stats
+
+**Endpoint:**  
+`GET /stats/<website-ID>/overview`  
+**Auth:** Bearer Token (JWT)
+
+
+---
+
+> ℹ️ **Note:** Replace placeholder JWT tokens with valid ones obtained during sign-in.
+
+
+---
+
 ## 📁 Project Structure
 
 ```
